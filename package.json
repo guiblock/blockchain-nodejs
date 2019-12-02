@@ -1,0 +1,19 @@
+{
+  "name": "xau-gold-core",
+  "version": "0.0.1",
+  "description": "Blockchain for the XAU GOLD Coin",
+  "main": "index.js",
+  "scripts": {
+    "test": "test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://guiters@bitbucket.org/financialhub/xau-gold-core.git"
+  },
+  "author": "Guilherme camacho",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/financialhub/xau-gold-core#readme",
+  "dependencies": {
+    "sha256": "^0.2.0"
+  }
+}
