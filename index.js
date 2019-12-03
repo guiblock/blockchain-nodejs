@@ -3,6 +3,7 @@ const app = express();
 const WebSocketServer = require('websocket').server;
 const http = require('http');
 const setupMethod = require('./modules/setupMethods');
+const BlockChain = require("./modules/blockchain");
 
 const httpServer =  http.createServer(function (request, response) {
     console.log((new Date()) + ' Received request for ' + request.url);
@@ -28,7 +29,7 @@ app.listen(portExpress, function () {
 /** Boot no websocket **/
 const portWS = 85;
 httpServer.listen(portWS, function () {
-    console.log(('BlockChain Websocket is listening on port ' + portWS);
+    console.log('BlockChain Websocket is listening on port ' + portWS);
 });
-
-setupMethod(app, wsServer);
+const BlockChainInstance = new BlockChain()
+setupMethod(app, wsServer, BlockChainInstance);

@@ -1,7 +1,5 @@
-const logControlWebsocket = require("./LogControlWebsocket");
 module.exports = (wsServer, method, controller) => {
     wsServer.on('request', function (request) {
-        //console.log(request);
         if (request.resource === method) {
             const connection = request.accept();
             console.log((new Date()) + " " + method + ' Connection accepted.');
@@ -13,7 +11,6 @@ module.exports = (wsServer, method, controller) => {
                         const endTime = new Date();
                         let timeDiff = Math.round(endTime - startTime)+ " ms"; //in ms
                         response.then(res => {
-                            logControlWebsocket(request, res, timeDiff);
                             connection.sendUTF(JSON.stringify(res));
                         }).catch(e => {
                             connection.sendUTF(JSON.stringify(e));
