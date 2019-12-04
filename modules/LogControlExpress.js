@@ -1,7 +1,8 @@
 const pjson = require('../package.json');
-const os = require('os')
+const os = require('os');
 
 module.exports = (tokens, req, res) => {
+   
     const log = [
         req.headers['x-forwarded-for'] || req.connection.remoteAddress,
         tokens.method(req, res),
@@ -35,5 +36,7 @@ module.exports = (tokens, req, res) => {
         "length": tokens.res(req, res, 'content-length'),
         "response-time": tokens['response-time'](req, res),
     };
+    console.log(message)
+    console.log()
     return log
 };

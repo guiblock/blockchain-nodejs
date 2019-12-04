@@ -1,11 +1,13 @@
 'use strict';
 const sha256 = require("sha256");
+const uuid = require("uuid/v1");
 
 module.exports = class Blockchain {
     constructor() {
         this.chain = [];
         this.pendingTransactions = [];
-
+        this.currentNodeUrl = ""
+        this.networkNodes = []
         //GenesisBlock
         this.createNewBlock(100, "0", "0")
     }
@@ -31,32 +33,60 @@ module.exports = class Blockchain {
     }
 
     createNewTransaction(amount, sender, recipient, message) {
-        const newTransaction = {
-            amount, 
-            sender, 
+        return {
+            amount,
+            sender,
             recipient,
             message,
+            transactionId: uuid().split("-").join(""),
             timestamp: Date.now()
         };
+    }
 
-        this.pendingTransactions.push(newTransaction);
+    addTransactionToPendingTransaction(transactionObj) {
+        this.pendingTransactions.push(transactionObj);
         return this.getLastBlock()['index'] + 1
     }
 
 
-    hashBlock(previousBlockHash, currentBlockData, nonce){
+    hashBlock(previousBlockHash, currentBlockData, nonce) {
         const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
         return sha256(dataAsString);
     }
 
-    proofOfWork(previousBlockHash, currentBlockData){
+    proofOfWork(previousBlockHash, currentBlockData) {
         let nonce = 0;
         let hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
-        while(hash.substring(0, 4) !== "0000"){
+        while (hash.substring(0, 4) !== "0000") {
             nonce++;
             hash = this.hashBlock(previousBlockHash, currentBlockData, nonce)
         }
         return nonce;
     }
 
+    chainIsValid(Blockchain) {
+        let validChain = true
+        
+        for (let i = 1; i < Blockchain.length; i++) {
+            const currentBlock = Blockchain[i];
+            const previousBlock = Blockchain[i];
+            const currentBlockData = {
+                index: currentBlock.index,
+                transactions: currentBlock.transactions,
+            }
+            const blockHash = this.hashBlock(previousBlock.hash, currentBlockData, currentBlock.nonce);
+            if (blockHash.substring(0, 4) !== "0000") validChain = false;
+            if (currentBlock["previusBlockHash"] !== previousBlock['hash']) validChain = false;
+        }
+        
+        const GenesisBlock = Blockchain[0]
+        const correctNonce = GenesisBlock['nonce'] === 100;
+        const correctPreviusBlockHash = GenesisBlock['previusBlockHash'] === '0';
+        const correctHash = GenesisBlock['hash'] === '0'
+        const correctTransactions = GenesisBlock['transactions'].length === 0;
+        
+        if(!correctNonce || !correctPreviusBlockHash || !correctHash || !correctTransactions) validChain = false;
+
+        return validChain
+    }
 }

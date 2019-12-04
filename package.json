@@ -4,7 +4,12 @@
   "description": "Blockchain for the XAU GOLD Coin",
   "main": "index.js",
   "scripts": {
-    "test": "test.js"
+    "test": "test.js",
+    "start-1": "nodemon index.js 80",
+    "start-2": "nodemon index.js 82",
+    "start-3": "nodemon index.js 84",
+    "start-4": "nodemon index.js 86",
+    "start-5": "nodemon index.js 88"
   },
   "repository": {
     "type": "git",
@@ -18,6 +23,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "morgan": "^1.9.1",
+    "node-cache": "^5.0.2",
+    "request": "^2.88.0",
     "sha256": "^0.2.0",
     "uuid": "^3.3.3",
     "websocket": "^1.0.30"

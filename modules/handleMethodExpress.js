@@ -1,4 +1,11 @@
+const hostAddress = require("./getHostAddress");
+
 module.exports = (req = {}, res = {}, next = {}, BlockChainInstance, callback) => {
+    if (!hostAddress()) {
+        const address = req.protocol + "://" + req.headers.host + "/"
+        hostAddress(address);
+        BlockChainInstance.currentNodeUrl = address
+    }
     callback(req.body, req.headers, BlockChainInstance).then(result => {
         return res.status(result.status).json(result.payload);
     }).catch(e => {

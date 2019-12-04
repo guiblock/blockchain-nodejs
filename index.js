@@ -21,13 +21,13 @@ const expressStart = require("./modules/expressStart");
 expressStart(app);
 
 /** Boot no express **/
-const portExpress = 80;
+const portExpress = process.argv[2] || 80;
 app.listen(portExpress, function () {
     console.log("BlockChain API listening on port " + portExpress);
 });
 
 /** Boot no websocket **/
-const portWS = 85;
+const portWS = process.argv[2] + 1 || 81;
 httpServer.listen(portWS, function () {
     console.log('BlockChain Websocket is listening on port ' + portWS);
 });
