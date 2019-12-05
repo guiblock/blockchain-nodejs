@@ -4,6 +4,7 @@ const getBlockchain = require("../routes/getBlockchain");
 const getBlockHash = require("../routes/getBlockHash");
 const getTransaction = require("../routes/getTransaction");
 const getAddressData = require("../routes/getAddressData");
+const createNewWallet = require("../routes/createNewWallet");
 const transactionBroadcast = require("../routes/transactionBroadcast");
 const newTransaction = require("../routes/newTransaction");
 const registerAndBroadcastNode = require("../routes/registerAndBroadcastNode");
@@ -22,6 +23,10 @@ module.exports = (app, wsServer, BlockChainInstance) => {
  /** Get Block By Hash public **/
  app.get("/block/:blockHash", (req, res, next) => handleMethodExpress(req, res, next, BlockChainInstance, getBlockHash));
  //websocketApp(wsServer, "/block/:blockHash", getBlockHash);
+
+ /** Get Block By Hash public **/
+ app.get("/createNewWallet", (req, res, next) => handleMethodExpress(req, res, next, BlockChainInstance, createNewWallet));
+ //websocketApp(wsServer, "/createNewWallet", createNewWallet);
 
  /** Get transaction By Hash public **/
  app.get("/transaction/:transactionId", (req, res, next) => handleMethodExpress(req, res, next, BlockChainInstance, getTransaction));

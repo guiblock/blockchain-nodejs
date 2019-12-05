@@ -4,8 +4,8 @@ const request = require("request")
 
 module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
     let status = 200;
-    let payload = {}
-    const pendingTransactions = BlockChainInstance.pendingTransactions
+    let payload = {};
+    const pendingTransactions = BlockChainInstance.pendingTransactions;
 
     if (pendingTransactions.length > 0) {
         let lastBlock = BlockChainInstance.getLastBlock();
@@ -23,7 +23,7 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
         const blockHash = BlockChainInstance.hashBlock(previousBlockHash, currentBlockData, nonce);
         let newBlock = BlockChainInstance.createNewBlock(nonce, previousBlockHash, blockHash);
 
-        const requestPromisse = []
+        const requestPromisse = [];
         if (BlockChainInstance.networkNodes.length > 0) {
             BlockChainInstance.networkNodes.forEach(networkNodeUrl => {
                 const requestOptions = {
@@ -31,16 +31,16 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
                     method: "POST",
                     body: { newBlock },
                     json: true
-                }
+                };
                 requestPromisse.push(request(requestOptions));
             });
         }
         if (requestPromisse.length > 0) {
             await Promise.all(requestPromisse).then(res => {
-                const RewardRequest = []
+                const RewardRequest = [];
                 for (let i = 0; i < pendingTransactions.length; i++) {
                     if (pendingTransactions[i].recipient !== nodeAddres) {
-                        const oldValue = pendingTransactions[i].amount
+                        const oldValue = pendingTransactions[i].amount;
                         const rewardTotal = oldValue * reward;
                         const rewardTransactions = BlockChainInstance.createNewTransaction(rewardTotal, pendingTransactions[i].recipient, nodeAddres, "Mining reward");
                         const requestOptions = {
@@ -48,7 +48,7 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
                             method: "POST",
                             body: rewardTransactions ,
                             json: true
-                        }
+                        };
                         RewardRequest.push(request(requestOptions));
                     }
                 }

@@ -1,18 +1,18 @@
-const request = require("request")
+const request = require("request");
 module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
     let status = 200;
     let payload = {};
-    let { newNodeUrl } = reqBody;
+    let {newNodeUrl} = reqBody;
     if (BlockChainInstance.networkNodes.indexOf(newNodeUrl) === -1) BlockChainInstance.networkNodes.push(newNodeUrl)
-    let requestPromisse = []
+    let requestPromisse = [];
     if (BlockChainInstance.networkNodes.length > 0) {
         BlockChainInstance.networkNodes.forEach(networkNodeUrl => {
             const requestOptions = {
                 uri: networkNodeUrl + "registerNode",
                 method: "POST",
-                body: { newNodeUrl },
+                body: {newNodeUrl},
                 json: true
-            }
+            };
             requestPromisse.push(request(requestOptions));
         });
     }
@@ -22,14 +22,14 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
             const bulkRegisterOptions = {
                 uri: newNodeUrl + "registerNodesBulk",
                 method: "POST",
-                body: { allNetworkNodes },
+                body: {allNetworkNodes},
                 json: true
-            }
+            };
             return request(bulkRegisterOptions);
         }).then(res => {
-        
+
         })
     }
-    payload = { "message": "node registry success" }
-    return { status, payload }
+    payload = {"message": "node registry success"};
+    return {status, payload}
 };
