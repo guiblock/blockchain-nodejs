@@ -36,7 +36,5 @@ module.exports = (tokens, req, res) => {
         "length": tokens.res(req, res, 'content-length'),
         "response-time": tokens['response-time'](req, res),
     };
-    console.log(message)
-    console.log()
     return log
 };

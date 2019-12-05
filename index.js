@@ -31,5 +31,5 @@ const portWS = process.argv[2] + 1 || 81;
 httpServer.listen(portWS, function () {
     console.log('BlockChain Websocket is listening on port ' + portWS);
 });
-const BlockChainInstance = new BlockChain()
+const BlockChainInstance = new BlockChain();
 setupMethod(app, wsServer, BlockChainInstance);

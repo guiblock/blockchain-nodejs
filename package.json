@@ -9,7 +9,8 @@
     "start-2": "nodemon index.js 82",
     "start-3": "nodemon index.js 84",
     "start-4": "nodemon index.js 86",
-    "start-5": "nodemon index.js 88"
+    "start-5": "nodemon index.js 88",
+    "start-6": "nodemon index.js 90"
   },
   "repository": {
     "type": "git",
@@ -25,6 +26,7 @@
     "morgan": "^1.9.1",
     "node-cache": "^5.0.2",
     "request": "^2.88.0",
+    "request-promise": "^4.2.5",
     "sha256": "^0.2.0",
     "uuid": "^3.3.3",
     "websocket": "^1.0.30"

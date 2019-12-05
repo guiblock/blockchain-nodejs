@@ -1,5 +1,5 @@
 const pjson = require('../package.json');
-const os = require('os')
+const os = require('os');
 module.exports = (req, res, ms) => {
     const log = [
         req.remoteAddress,
