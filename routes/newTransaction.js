@@ -10,6 +10,6 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
     const blockIndex = BlockChainInstance.addTransactionToPendingTransaction(newTransaction);
 
     let status = 200;
-    let payload = { message: "Transaction created and broadcast successfuly", blockIndex };
+    let payload = { message: "Transaction created and broadcast successfully", blockIndex };
     return { status, payload }
 };

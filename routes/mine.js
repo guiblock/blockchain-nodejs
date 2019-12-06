@@ -1,13 +1,14 @@
 const uuid = require("uuid/v1");
-const nodeAddres = uuid().split("-").join("")
-const request = require("request")
+const nodeAddres = uuid().split("-").join("");
+const request = require("request");
 
 module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
     let status = 200;
     let payload = {};
     const pendingTransactions = BlockChainInstance.pendingTransactions;
+    const pendingWallets = BlockChainInstance.pendingWallets;
 
-    if (pendingTransactions.length > 0) {
+    if (pendingTransactions.length > 0 || pendingWallets.length > 0) {
         let lastBlock = BlockChainInstance.getLastBlock();
         let previousBlockHash = lastBlock["hash"];
         let currentBlockData = {
@@ -17,7 +18,7 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
 
         //Reward of Network
         const reward = 0.001;
-        
+
 
         const nonce = BlockChainInstance.proofOfWork(previousBlockHash, currentBlockData);
         const blockHash = BlockChainInstance.hashBlock(previousBlockHash, currentBlockData, nonce);
@@ -29,7 +30,7 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
                 const requestOptions = {
                     uri: networkNodeUrl + "receivedNewBlock",
                     method: "POST",
-                    body: { newBlock },
+                    body: {newBlock},
                     json: true
                 };
                 requestPromisse.push(request(requestOptions));
@@ -46,21 +47,21 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
                         const requestOptions = {
                             uri: BlockChainInstance.currentNodeUrl + "transaction/broadcast",
                             method: "POST",
-                            body: rewardTransactions ,
+                            body: rewardTransactions,
                             json: true
                         };
                         RewardRequest.push(request(requestOptions));
                     }
                 }
                 return Promise.all(RewardRequest);
-             }).then(res=>{
+            }).then(res => {
 
-             })
+            })
         }
-        payload = { "message": "New block mined & broadcast Succesfully", newBlock };
+        payload = {"message": "New block mined & broadcast Succesfully", newBlock};
     } else {
-        payload = { "message": "not exist transactions to mine" };
+        payload = {"message": "not exist transactions to mine"};
     }
 
-    return { status, payload }
+    return {status, payload}
 };

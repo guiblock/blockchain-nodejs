@@ -10,7 +10,7 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
         }
     }
     const newTransaction = await BlockChainInstance.createNewTransaction(amount, sender, recipient, message, privateKey);
-    if (newTransaction) {
+    if (!newTransaction.error) {
         const blockIndex = BlockChainInstance.addTransactionToPendingTransaction(newTransaction);
         let requestPromisse = [];
         if (BlockChainInstance.networkNodes.length > 0) {
@@ -34,7 +34,7 @@ module.exports = async (reqBody, reqHeaders, BlockChainInstance) => {
         payload = {message: "Transaction created and broadcast successfuly", blockIndex};
     } else {
         status = 403;
-        payload = {message: "Sender do not have found for this transactions"};
+        payload = newTransaction;
     }
     return {status, payload}
 };

@@ -13,6 +13,7 @@ module.exports = class Blockchain {
     constructor() {
         this.chain = [];
         this.pendingTransactions = [];
+        this.pendingWallets = [];
         this.currentNodeUrl = "";
         this.networkNodes = [];
         //GenesisBlock
@@ -29,9 +30,15 @@ module.exports = class Blockchain {
             this.createNewBlock(100, "0", "0");
             const pendingTransactions = this.pendingTransactions;
             const createGenesisWallet = this.createNewWallet();
-            const xauCoinAddress = createGenesisWallet.publicKey;
-            const privateKey = createGenesisWallet.privateKey;
-            this.createNewTransaction(500000000, xauCoinAddress, xauCoinAddress, "Genesis Block of the network", privateKey).then(genesisBlock => {
+            const GenesisAddress = createGenesisWallet.publicKey;
+            const GenesisPrivateKey = createGenesisWallet.privateKey;
+
+            const createXauGoldWallet = this.createNewWallet();
+            const xauGoldAddress = createXauGoldWallet.publicKey;
+            const xauGoldPrivateKey = createXauGoldWallet.privateKey;
+
+            console.log(createXauGoldWallet);
+            this.createNewTransaction(500000000, GenesisAddress, xauGoldAddress, "Genesis Block of the network", GenesisPrivateKey).then(genesisBlock => {
                 this.addTransactionToPendingTransaction(genesisBlock);
                 let lastBlock = this.getLastBlock();
                 let previousBlockHash = lastBlock["hash"];
@@ -80,6 +87,7 @@ module.exports = class Blockchain {
         // Corresponding uncompressed (65-byte) public key.
         const publicKey = eccrypto.getPublic(privateKey);
         const publicKeyString = Buffer.from(publicKey).toString("hex");
+        this.pendingWallets.push(publicKeyString);
         return {privateKey: privateKeyString, publicKey: publicKeyString}
     }
 
@@ -88,11 +96,13 @@ module.exports = class Blockchain {
             index: this.chain.length + 1,
             timestamp: Date.now(),
             transactions: this.pendingTransactions,
+            wallets: this.pendingWallets,
             nonce,
             hash,
             previousBlockHash
         };
         this.pendingTransactions = [];
+        this.pendingWallets = [];
         this.chain.push(newBlock);
         this.saveBlockToFile();
         return newBlock;
@@ -114,14 +124,12 @@ module.exports = class Blockchain {
             privateKey.compare(EC_GROUP_ORDER) < 0; // < G
     }
 
-    async validateSign(publicKeyBuffer, transactionEncoded, signature) {
-        return new Promise(function (resolve, reject) {
-            eccrypto.verify(publicKeyBuffer, transactionEncoded, signature).then(function () {
-                resolve(true)
-            }).catch(function () {
-                reject(false)
-            });
+    walletIsRegistered(wallet) {
+        let registered = false;
+        this.chain.forEach(chain => {
+            if (chain.wallets.indexOf(wallet) !== -1) registered = true;
         });
+        return registered
     }
 
     async createNewTransaction(amount, sender, recipient, message, privateKey) {
@@ -129,10 +137,18 @@ module.exports = class Blockchain {
         const privateKeyBuffer = Buffer.from(privateKey, "hex");
         let publicKeyBuffer = Buffer.from(sender, "hex");
 
+        const walletIsPending = this.pendingWallets.indexOf(sender) !== -1 || this.pendingWallets.indexOf(recipient) !== -1;
+        const walletIsRegistered = this.walletIsRegistered(sender) || this.walletIsRegistered(recipient);
         if (!this.isValidPrivateKey(privateKeyBuffer)) {
-            return false
+            return {error: true, message: "Invalid Private Key"}
         }
+
+        if (!(walletIsPending || walletIsRegistered)) {
+            return {error: true, message: "Invalid Wallet from recipient or sender"}
+        }
+
         const senderBalance = this.getAddressData(sender);
+
         if (senderBalance.addressBalance > 0 || !this.genesisStatus) {
             return new Promise(async function (resolve, reject) {
                 const transactions = {
@@ -146,17 +162,18 @@ module.exports = class Blockchain {
                 eccrypto.sign(privateKeyBuffer, transactionEncoded).then(function (sig) {
                     transactions.transactionId = Buffer.from(sig).toString("hex");
                     eccrypto.verify(publicKeyBuffer, transactionEncoded, sig).then(function () {
-                        console.log("Tudo certo");
                         resolve(transactions)
                     }).catch(function (e) {
                         console.log(e);
-                        console.log("Opss");
-                        reject(false)
+                        reject({
+                            error: true,
+                            message: "Can't sign this transaction, verify the the address or the private Key"
+                        })
                     });
                 });
             });
         } else {
-            return false
+            return {error: true, message: "Sender do not have found for this transactions"}
         }
     }
 
@@ -164,7 +181,6 @@ module.exports = class Blockchain {
         this.pendingTransactions.push(transactionObj);
         return this.getLastBlock()['index'] + 1
     }
-
 
     hashBlock(previousBlockHash, currentBlockData, nonce) {
         const dataAsString = previousBlockHash + nonce.toString() + JSON.stringify(currentBlockData);
@@ -184,7 +200,6 @@ module.exports = class Blockchain {
     chainIsValid(blockchain) {
         let validChain = true;
         if (blockchain && blockchain.length > 0) {
-
             for (let i = 1; i < blockchain.length; i++) {
                 const currentBlock = blockchain[i];
                 const prevBlock = blockchain[i - 1];
@@ -204,7 +219,6 @@ module.exports = class Blockchain {
             const correctTransactions = genesisBlock['transactions'].length === 0;
 
             if (!correctNonce || !correctPreviousBlockHash || !correctHash || !correctTransactions) validChain = false;
-
             return validChain;
         } else {
             return false
