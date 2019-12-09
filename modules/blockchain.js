@@ -28,33 +28,6 @@ module.exports = class Blockchain {
         if (BlockFiles.length === 0) {
             console.log("Creating Genesis Block");
             this.createNewBlock(100, "0", "0");
-            const pendingTransactions = this.pendingTransactions;
-            const createGenesisWallet = this.createNewWallet();
-            const GenesisAddress = createGenesisWallet.publicKey;
-            const GenesisPrivateKey = createGenesisWallet.privateKey;
-
-            const createXauGoldWallet = this.createNewWallet();
-            const xauGoldAddress = createXauGoldWallet.publicKey;
-            const xauGoldPrivateKey = createXauGoldWallet.privateKey;
-
-            console.log(createXauGoldWallet);
-            this.createNewTransaction(500000000, GenesisAddress, xauGoldAddress, "Genesis Block of the network", GenesisPrivateKey).then(genesisBlock => {
-                this.addTransactionToPendingTransaction(genesisBlock);
-                let lastBlock = this.getLastBlock();
-                let previousBlockHash = lastBlock["hash"];
-                let currentBlockData = {
-                    transaction: pendingTransactions,
-                    index: lastBlock["index"] + 1
-                };
-                this.proofOfWork();
-                const nonce = this.proofOfWork(previousBlockHash, currentBlockData);
-                const blockHash = this.hashBlock(previousBlockHash, currentBlockData, nonce);
-                this.createNewBlock(nonce, previousBlockHash, blockHash);
-                this.genesisStatus = true;
-            }).catch(e => {
-                console.log(e);
-            });
-
         } else {
             let validBlocks = true;
             let lastBlock = null;
